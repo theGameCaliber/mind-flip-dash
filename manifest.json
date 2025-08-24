@@ -1,0 +1,12 @@
+{
+  "name": "Mind Flip Dash",
+  "short_name": "MindFlip",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00ffc3",
+  "icons": [
+    { "src": "/assets/logo/favicon.ico", "sizes": "192x192", "type": "image/x-icon" },
+    { "src": "/assets/logo/apple-touch-icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
