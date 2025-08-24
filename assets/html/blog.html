@@ -1,1 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coming Soon - Game Blog</title>
+    <!-- Googl Fonts stylesheet -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Winky+Sans:ital,wght@0,300..900;1,300..900&display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            font-family: "Winky Sans", sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .coming-soon-container {
+            text-align: center;
+            max-width: 500px;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        p {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        input[type="email"] {
+            padding: 10px;
+            border: none;
+            outline: none;
+            font-family: "Winky Sans", sans-serif;
+            border-radius: 4px 0 0 4px;
+            flex: 1;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            background: #ff4b2b;
+            color: white;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-family: "Winky Sans", sans-serif;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #ff416c;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .countdown div {
+            font-size: 1rem;
+        }
+
+        .countdown span {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="coming-soon-container">
+        <div class="logo">🎮 Gaming Blog</div>
+        <h1>Coming Soon</h1>
+        <p>Game on, world your new favorite blog is almost ready to drop -- stay locked and loaded.</p>
+
+        <form id="notifyForm">
+            <input type="email" placeholder="Enter your email" required>
+            <button type="submit">Notify Me</button>
+        </form>
+
+        <div class="countdown">
+            <div><span id="days">00</span><br>Days</div>
+            <div><span id="hours">00</span><br>Hours</div>
+            <div><span id="minutes">00</span><br>Minutes</div>
+            <div><span id="seconds">00</span><br>Seconds</div>
+        </div>
+    </div>
+
+    <script>
+        // Countdown Timer
+        const targetDate = new Date("2025-10-01T00:00:00").getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("days").textContent = days;
+            document.getElementById("hours").textContent = hours;
+            document.getElementById("minutes").textContent = minutes;
+            document.getElementById("seconds").textContent = seconds;
+        }
+
+        setInterval(updateCountdown, 1000);
+
+        // Email Notify
+        document.getElementById("notifyForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const email = this.querySelector("input").value;
+
+            try {
+                const res = await fetch("https://mind-flip-dash.up.railway.app/subscribe", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+
+                const data = await res.json();
+                alert(data.message);
+                this.reset();
+            } catch (error) {
+                alert("Error: Could not subscribe. Please try again.");
+            }
+        });
+    </script>
+</body>
+
+</html>
