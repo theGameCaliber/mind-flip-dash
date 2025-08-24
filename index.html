@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Mind Flip Dash</title>
+  <link rel="icon" type="image/x-icon" href="assets/logo/favicon.ico">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00ffc3">
+  <style>
+    body,
+    html {
+      height: 100%;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+      background: #070707;
+    }
+
+    canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    #gameDiv {
+      position: relative;
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="gameDiv"></div>
+
+  <!-- Google Fonts -->
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+
+  <!-- Phaser 3 CDN (stable) -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+
+  <!-- Main Game -->
+  <script src="js/game.js"></script>
+
+  <script>
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('js/service-worker.js')
+        .then(() => console.log("✅ Service Worker Registered"))
+        .catch(err => console.warn('SW registration failed', err));
+    }
+  </script>
+</body>
+
+</html>
