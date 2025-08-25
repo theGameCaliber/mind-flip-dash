@@ -342,7 +342,7 @@
             fontSize: `${subSize}px`,
             color: "#ddd",
             align: "center",
-            wordWrap: { width: Math.min(W * 0.8, 700) },
+            wordWrap: { width: Math.min(W * 0.8, 1000) },
           }
         )
         .setOrigin(0.5)
@@ -525,8 +525,11 @@
 
       const content = [
         "> Match the arrow by pressing the opposite key/button within the time limit.",
+        "",
         "> Score increases for each correct match, and time decreases as score increases.",
+        "",
         "> Try to beat your own score and be on the leaderboard!",
+        "",
         "> Different type of difficulties you will get to engage",
         "",
         "Easy: Simple (⬆️ ⬅️ ⬇️ ➡️)",
@@ -627,8 +630,8 @@
     }
 
     _setupStatsUI(W, H) {
-      const x = W - 18,
-        startY = H - 120;
+      const x = W - 40,
+        startY = H - 130;
       const labelStyle = {
         fontFamily: '"Luckiest Guy", "cursive"',
         fontSize: Math.max(12, Math.floor(Math.min(W, H) / 48)),
@@ -676,7 +679,7 @@
 
       // 💬 Feedback
       this.feedbackText = this.add
-        .text(W - 10, startY + 88, "💬 Feedback", labelStyle)
+        .text(W - 30, startY + 88, "💬 Feedback", labelStyle)
         .setOrigin(1, 0)
         .setDepth(2)
         .setInteractive({ useHandCursor: true });
@@ -1729,9 +1732,8 @@
     dom: {
       createContainer: true
     },
-    parent: "gameDiv",
-    width: GAME_WIDTH,
-    height: GAME_HEIGHT,
+    width: window.innerWidth,
+    height: window.innerHeight,
     backgroundColor: 0x0b0b0b,
     physics: {
       default: 'arcade'
@@ -1745,10 +1747,9 @@
       SettingsScene,
     ],
     scale: {
-      mode: Phaser.Scale.FIT,
+      mode: Phaser.Scale.RESIZE,
       autoCenter: Phaser.Scale.CENTER_BOTH,
-      width: GAME_WIDTH,
-      height: GAME_HEIGHT,
+      parent: "gameDiv"
     },
     render: {
       pixelArt: false,
