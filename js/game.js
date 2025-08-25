@@ -393,9 +393,9 @@
 
       // Create links as individual text objects
       const links = [
-        { label: "Privacy Policy", url: "/assets/html/privacy_policy.html" },
-        { label: "Terms of Service", url: "/assets/html/terms_of_service.html" },
-        { label: "Blog", url: "/assets/html/blog.html" },
+        { label: "Privacy Policy", url: "assets/html/privacy_policy.html" },
+        { label: "Terms of Service", url: "assets/html/terms_of_service.html" },
+        { label: "Blog", url: "assets/html/blog.html" },
       ];
 
       let currentX = leftMargin;
