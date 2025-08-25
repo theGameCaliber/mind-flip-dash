@@ -124,12 +124,12 @@
       });
     }
 
-    showPromptModal(message = "Enter text:", defaultValue = "", maxLength = 200, callback = () => { }) {
+    showPromptModal(message = "", defaultValue = "", maxLength = 200, callback = () => { }) {
       const W = this.scale.width;
       const H = this.scale.height;
       const centerX = W / 2;
       const centerY = H / 2;
-      const boxW = Math.min(W * 0.86, 680);
+      const boxW = Math.min(W * 0.86, 620);
       const boxH = 300;
 
       // Block UI interaction underneath
@@ -158,7 +158,6 @@
         <input type="text"
           maxlength="${maxLength}"
           placeholder="${defaultValue}"
-          value="${defaultValue}"
           style="
             width: ${boxW * 0.75}px;
             padding: 10px;
@@ -293,6 +292,8 @@
     }
 
     create() {
+      // ✅ Clear continue flag on fresh game load
+      localStorage.removeItem("mfd_continue_used");
       this.scene.start("MenuScene");
     }
   }
@@ -876,6 +877,21 @@
       this.timeLimit = this.baseTime;
       this.high = parseInt(localStorage.getItem(LS.high) || "0", 10);
 
+      // central arrow (SVG)
+      const arrowSize = Math.max(46, Math.floor(Math.min(W, H) / 6));
+      this.arrow = this.add
+        .image(W / 2, H / 2 - arrowSize * 0.8, "arrow_up")
+        .setOrigin(0.5)
+        .setDepth(5)
+        .setTint(0xffee58);
+
+      const arrowScale = Math.min(
+        0.9,
+        arrowSize / Math.max(this.arrow.width, this.arrow.height)
+      );
+      this.arrow.setScale(arrowScale);
+      this.arrowBaseScale = arrowScale;
+
       this.scoreText = this.add
         .text(W / 2, 36, `🎯 Score: ${this.score}`, {
           fontFamily: '"Luckiest Guy", "cursive"',
@@ -894,27 +910,19 @@
         .setDepth(5);
 
       // red timer bar setup
-      this.timerBarWidth = Math.min(this.scale.width * 0.8, 600); // max width of bar
+      this.timerBarWidth = Math.min(W * 0.8, 600); // max width of bar
       this.timerBarHeight = 10;
-      this.timerBarX = (this.scale.width - this.timerBarWidth) / 2;
+      this.timerBarX = (W - this.timerBarWidth) / 2;
       this.timerBarY = this.highText.y + 40;
       this.timerBar = this.add.graphics().setDepth(6).setAlpha(1);
       this._updateTimerBar(1); // show full bar initially
 
-      // central arrow (SVG)
-      const arrowSize = Math.max(46, Math.floor(Math.min(W, H) / 6));
-      this.arrow = this.add
-        .image(W / 2, H / 2 - arrowSize * 0.8, "arrow_up")
-        .setOrigin(0.5)
-        .setDepth(5)
-        .setTint(0xffee58);
-
-      const arrowScale = Math.min(
-        0.9,
-        arrowSize / Math.max(this.arrow.width, this.arrow.height)
-      );
-      this.arrow.setScale(arrowScale);
-      this.arrowBaseScale = arrowScale;
+      // Check if save game exist in local storage
+      const savedState = JSON.parse(localStorage.getItem("mfd_resume_state"));
+      if (savedState) {
+        this.resumeGameFromLastState(savedState);
+        localStorage.removeItem("mfd_resume_state"); // one-time resume
+      }
 
       // sounds
       this.success = this.sound.add("successSfx");
@@ -958,7 +966,7 @@
       const W = this.scale.width;
       const H = this.scale.height;
 
-      const baseFontSize = 24;
+      const baseFontSize = 20;
       const scaleFactor = Math.min(W, H) / 800;
       const fontSize = Math.max(14, Math.floor(baseFontSize * scaleFactor));
 
@@ -1185,10 +1193,67 @@
       this.panel?.destroy();
       this.msg?.destroy();
       this.scoreText?.destroy();
+      this.continueBtn?.destroy();
       this.restartBtn?.destroy();
       this.exitBtn?.destroy();
       this.submitBtn?.destroy();
       this.inputBlocker?.destroy();
+    }
+
+    showRewardedAd(callback) {
+      // Simulate ad duration with timeout
+      this.showAlertModal("🎬 Watch an ad to continue...", {
+        onClose: () => {
+          this.time.delayedCall(2000, () => {
+            this.showAlertModal("✅ Thanks for watching!", {
+              onClose: callback
+            });
+          });
+        }
+      });
+    }
+
+    resumeGameFromLastState(saved) {
+      const W = this.scale.width;
+      const H = this.scale.height;
+
+      this.score = saved.score || this.score;
+      this.high = saved.high || this.high;
+      this.currentDir = saved.currentDir || "ArrowUp";
+      this.difficulty = saved.difficulty || "easy";
+      this.baseTime = BASE_TIME;
+      this.timeLimit = saved.timeLimit || this.baseTime;
+      this.gameOver = false;
+
+      const arrowTextureMap = {
+        ArrowUp: "arrow_up",
+        ArrowDown: "arrow_down",
+        ArrowLeft: "arrow_left",
+        ArrowRight: "arrow_right",
+        NE: "arrow_ne",
+        NW: "arrow_nw",
+        SE: "arrow_se",
+        SW: "arrow_sw",
+      };
+
+      const textureKey = arrowTextureMap[this.currentDir] || "arrow_up";
+      this.arrow.setTexture(textureKey);
+
+      const elapsed = saved.elapsed || 0;
+      const remainingTime = Math.max(100, this.timeLimit - elapsed); // prevent 0ms fail
+      this.timerStartTime = this.time.now - elapsed;
+      this.timerRunning = true;
+
+      const progress = Phaser.Math.Clamp(remainingTime / this.timeLimit, 0, 1);
+      this._updateTimerBar(progress);
+
+      // Start countdown for remaining time
+      if (this.timerEvent) this.timerEvent.remove(false);
+      this.timerEvent = this.time.delayedCall(remainingTime, () => {
+        this.timerRunning = false;
+        this._onFail();
+      });
+
     }
 
     _onFail() {
@@ -1239,35 +1304,58 @@
       this.panel.strokeRoundedRect(W / 2 - boxW / 2, H / 2 - boxH / 2, boxW, boxH, 18);
 
       this.msg = this.add
-        .text(W / 2, H / 2 - 140, "💥 Game Over!", {
+        .text(W / 2, H / 2 - 160, "💥 Game Over!", {
           fontFamily: '"Luckiest Guy", "cursive"',
-          fontSize: Math.max(20, Math.floor(Math.min(W, H) / 24)),
+          fontSize: Math.max(20, Math.floor(Math.min(W, H) / 20)),
           color: "#fff",
         })
         .setOrigin(0.5)
         .setDepth(100);
 
-      this.scoreText = this.add
-        .text(W / 2 + 15, H / 2 - 100, `Your Score: ${this.score}`, {
+      this.scoreData = this.add
+        .text(W / 2 + 15, H / 2 - 120, `Your Score: ${this.score}`, {
           fontFamily: '"Luckiest Guy", "cursive"',
-          fontSize: Math.max(16, Math.floor(Math.min(W, H) / 30)),
+          fontSize: Math.max(16, Math.floor(Math.min(W, H) / 34)),
           color: "#ddd",
         })
         .setOrigin(0.5)
         .setDepth(100);
 
-      this.restartBtn = this._makeModalRoundedButton(W / 2 - 90, H / 2 + 20, "🔁 Restart", () => {
+      this.continueBtn = this._makeModalRoundedButton(W / 2, H / 2 - 40, "▶️ Continue", () => {
+        if (localStorage.getItem("mfd_continue_used")) {
+          this.showAlertModal("You've already used continue.");
+          this.continueBtn.destroy();
+          return;
+        }
+        localStorage.setItem("mfd_continue_used", "yes");
+
+        // Save resume state
+        const elapsed = this.time.now - this.timerStartTime;
+        localStorage.setItem("mfd_resume_state", JSON.stringify({
+          score: this.score,
+          high: this.high,
+          currentDir: this.currentDir,
+          difficulty: this.difficulty,
+          elapsed: elapsed,
+          timeLimit: this.timeLimit,
+        }));
+
         this.destroyGameOverModal();
         this.scene.start("GameScene");
       }, boxW);
 
-      this.exitBtn = this._makeModalRoundedButton(W / 2 + 105, H / 2 + 20, "🚪 Exit", () => {
+      this.restartBtn = this._makeModalRoundedButton(W / 2 - 90, H / 2 + 40, "🔁 Restart", () => {
+        this.destroyGameOverModal();
+        this.scene.start("GameScene");
+      }, boxW);
+
+      this.exitBtn = this._makeModalRoundedButton(W / 2 + 105, H / 2 + 40, "🚪 Exit", () => {
         this.destroyGameOverModal();
         this.scene.start("MenuScene");
       }, boxW);
 
-      this.submitBtn = this._makeModalRoundedButton(W / 2, H / 2 + 100, "🏁 Submit Score", () => {
-        this.showPromptModal("Enter name for leaderboard (max 20 chars):", "Player", 20, (name) => {
+      this.submitBtn = this._makeModalRoundedButton(W / 2, H / 2 + 120, "🏁 Submit Score", () => {
+        this.showPromptModal("Enter name for leaderboard (max 20 chars):", "Player Name...", 20, (name) => {
           if (!name) return;
 
           fetch("https://mind-flip-dash.up.railway.app/submit-score", {
@@ -1280,7 +1368,6 @@
               if (j.status === "success") {
                 this.showAlertModal("🎉Score submitted!", {
                   onClose: () => {
-                    console.log("✅ Score submitted modal dismissed.");
                     this.destroyGameOverModal();
                     this.scene.start("MenuScene");
                   },
