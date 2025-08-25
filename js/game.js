@@ -255,7 +255,7 @@
 
     preload() {
       // load logo
-      this.load.image("logo", "/assets/logo/mind_flip_dash_logo.png");
+      this.load.image("logo", "../assets/logo/mind_flip_dash_logo.png");
 
       // arrows for touch buttons (PNGs)
       this.load.image("arrow_up", "/assets/arrows/up.svg");
