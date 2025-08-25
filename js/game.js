@@ -124,13 +124,13 @@
       });
     }
 
-    showPromptModal(message = "Enter text:", defaultValue = "", maxLength = 100, callback = () => { }) {
+    showPromptModal(message = "Enter text:", defaultValue = "", maxLength = 200, callback = () => { }) {
       const W = this.scale.width;
       const H = this.scale.height;
       const centerX = W / 2;
       const centerY = H / 2;
-      const boxW = Math.min(W * 0.86, 480);
-      const boxH = 260;
+      const boxW = Math.min(W * 0.86, 680);
+      const boxH = 300;
 
       // Block UI interaction underneath
       const blocker = this.add.rectangle(centerX, centerY, W, H, 0x000000, 0.6)
@@ -147,7 +147,7 @@
       // Prompt message
       const msgText = this.add.text(centerX, centerY - 80, message, {
         fontFamily: '"Luckiest Guy", cursive',
-        fontSize: "18px",
+        fontSize: "24px",
         color: "#ffffff",
         align: "center",
         wordWrap: { width: boxW - 40 }
@@ -162,7 +162,7 @@
           style="
             width: ${boxW * 0.75}px;
             padding: 10px;
-            font-size: 16px;
+            font-size: 22px;
             font-family: 'Luckiest Guy', cursive;
             border-radius: 8px;
             border: 2px solid #00ffc3;
@@ -183,7 +183,7 @@
         // Create text object
         const text = this.add.text(0, 0, label, {
           fontFamily: '"Luckiest Guy", cursive',
-          fontSize: "18px",
+          fontSize: "24px",
           color: "#ffffff",
           align: "center",
         }).setOrigin(0.5).setDepth(904);
@@ -387,9 +387,9 @@
         color: "#ffffff",
       };
 
-      const footerY = H - 22;
+      const footerStartY = H - 100;
       const leftMargin = 18;
-      const footerGap = 10;
+      const footerGap = 30;
 
       // Create links as individual text objects
       const links = [
@@ -398,12 +398,10 @@
         { label: "Blog", url: "assets/html/blog.html" },
       ];
 
-      let currentX = leftMargin;
-
       links.forEach((link, i) => {
         const linkText = this.add
-          .text(currentX, footerY, link.label, linkStyle)
-          .setOrigin(0, 1)
+          .text(leftMargin, footerStartY + i * footerGap, link.label, linkStyle)
+          .setOrigin(0, 0) // Top-left origin for vertical stacking
           .setDepth(2)
           .setInteractive({ useHandCursor: true });
 
@@ -414,8 +412,6 @@
           linkText.setStyle({ color: "#ffffff" })
         );
         linkText.on("pointerdown", () => window.open(link.url, "_blank"));
-
-        currentX += linkText.width + footerGap;
       });
 
       // background music
@@ -493,8 +489,8 @@
     _openHowTo() {
       const W = this.scale.width,
         H = this.scale.height;
-      const boxW = Math.min(W * 0.9, 720);
-      const boxH = Math.min(H * 0.6, 360);
+      const boxW = Math.min(W * 0.9, 740);
+      const boxH = Math.min(H * 0.6, 460);
 
       const centerX = Math.round(W / 2);
       const centerY = Math.round(H / 2);
@@ -525,20 +521,16 @@
 
       const content = [
         "> Match the arrow by pressing the opposite key/button within the time limit.",
-        "",
         "> Score increases for each correct match, and time decreases as score increases.",
-        "",
         "> Try to beat your own score and be on the leaderboard!",
-        "",
         "> Different type of difficulties you will get to engage",
-        "",
         "Easy: Simple (⬆️ ⬅️ ⬇️ ➡️)",
         "Medium: Diagonal (↖️ ↗️ ↙️ ↘️)",
         "Hard: Both Mixed randomly",
       ];
 
       const textGroup = this.add.group();
-      const lineSpacing = 24;
+      const lineSpacing = 50;
 
       const textStyle = {
         fontFamily: '"Luckiest Guy", "cursive"',
@@ -548,7 +540,7 @@
         wordWrap: { width: boxW - 40 },
       };
 
-      const startY = centerY - boxH / 2 + 30;
+      const startY = centerY - boxH / 2 + 60;
 
       content.forEach((line, i) => {
         const lineText = this.add
@@ -590,7 +582,7 @@
 
       const closeText = this.add.text(closeBtnX, closeBtnY, "Close", {
         fontFamily: '"Luckiest Guy", cursive',
-        fontSize: "18px",
+        fontSize: "24px",
         color: "#ffffff",
       }).setOrigin(0.5).setDepth(103);
 
@@ -742,7 +734,7 @@
       );
 
       this.feedbackText.on("pointerdown", () => {
-        this.showPromptModal("Send feedback (max 500 chars):", "", 500, (text) => {
+        this.showPromptModal("Send feedback (max 200 chars):", "", 200, (text) => {
           if (!text) return;
 
           fetch("https://mind-flip-dash.up.railway.app/api/submit-feedback", {
@@ -887,13 +879,13 @@
       this.scoreText = this.add
         .text(W / 2, 36, `🎯 Score: ${this.score}`, {
           fontFamily: '"Luckiest Guy", "cursive"',
-          fontSize: Math.max(18, Math.floor(Math.min(W, H) / 28)),
+          fontSize: Math.max(18, Math.floor(Math.min(W, H) / 20)),
           color: "#fff",
         })
         .setOrigin(0.5)
         .setDepth(5);
       this.highText = this.add
-        .text(W / 2, 68, `💯 High Score: ${this.high}`, {
+        .text(W / 2, 74, `💯 High Score: ${this.high}`, {
           fontFamily: '"Luckiest Guy", "cursive"',
           fontSize: Math.max(14, Math.floor(Math.min(W, H) / 40)),
           color: "#a6ff00",
@@ -902,8 +894,8 @@
         .setDepth(5);
 
       // red timer bar setup
-      this.timerBarWidth = Math.min(this.scale.width * 0.8, 400); // max width of bar
-      this.timerBarHeight = 8;
+      this.timerBarWidth = Math.min(this.scale.width * 0.8, 600); // max width of bar
+      this.timerBarHeight = 10;
       this.timerBarX = (this.scale.width - this.timerBarWidth) / 2;
       this.timerBarY = this.highText.y + 40;
       this.timerBar = this.add.graphics().setDepth(6).setAlpha(1);
@@ -962,11 +954,19 @@
       this._createTouchControls();
     }
 
-    _makeModalRoundedButton(x, y, label, callback) {
-      const fontSize = 16;
+    _makeModalRoundedButton(x, y, label, callback, maxWidth = null) {
+      const W = this.scale.width;
+      const H = this.scale.height;
+
+      const baseFontSize = 24;
+      const scaleFactor = Math.min(W, H) / 800;
+      const fontSize = Math.max(14, Math.floor(baseFontSize * scaleFactor));
+
       const paddingX = 28;
       const paddingY = 12;
       const radius = 10;
+
+      const computedMaxWidth = maxWidth || W * 0.85;
 
       // Create text
       const text = this.add.text(0, 0, label, {
@@ -974,9 +974,13 @@
         fontSize: `${fontSize}px`,
         color: "#ffffff",
         align: "center",
+        wordWrap: {
+          width: computedMaxWidth - paddingX * 2,
+          useAdvancedWrap: true
+        },
       }).setOrigin(0.5).setResolution(window.devicePixelRatio);
 
-      const textWidth = text.width;
+      const textWidth = Math.min(text.width, computedMaxWidth - paddingX * 2);
       const textHeight = text.height;
       const btnWidth = textWidth + paddingX * 2;
       const btnHeight = textHeight + paddingY * 2;
@@ -1220,8 +1224,8 @@
       // show Game Over modal inside Phaser
       const W = this.scale.width,
         H = this.scale.height;
-      const boxW = Math.min(W * 0.86, 520),
-        boxH = Math.min(H * 0.46, 320);
+      const boxW = Math.min(W * 0.86, 620),
+        boxH = Math.min(H * 0.46, 400);
 
       this.inputBlocker = this.add
         .rectangle(W / 2, H / 2, W, H, 0x000000, 0.001) // almost invisible
@@ -1235,34 +1239,34 @@
       this.panel.strokeRoundedRect(W / 2 - boxW / 2, H / 2 - boxH / 2, boxW, boxH, 18);
 
       this.msg = this.add
-        .text(W / 2, H / 2 - 80, "💥 Game Over!", {
+        .text(W / 2, H / 2 - 140, "💥 Game Over!", {
           fontFamily: '"Luckiest Guy", "cursive"',
-          fontSize: Math.max(20, Math.floor(Math.min(W, H) / 22)),
+          fontSize: Math.max(20, Math.floor(Math.min(W, H) / 24)),
           color: "#fff",
         })
         .setOrigin(0.5)
         .setDepth(100);
 
       this.scoreText = this.add
-        .text(W / 2 + 15, H / 2 - 30, `Your Score: ${this.score}`, {
+        .text(W / 2 + 15, H / 2 - 100, `Your Score: ${this.score}`, {
           fontFamily: '"Luckiest Guy", "cursive"',
-          fontSize: Math.max(16, Math.floor(Math.min(W, H) / 28)),
+          fontSize: Math.max(16, Math.floor(Math.min(W, H) / 30)),
           color: "#ddd",
         })
         .setOrigin(0.5)
         .setDepth(100);
 
-      this.restartBtn = this._makeModalRoundedButton(W / 2 - 120, H / 2 + 30, "🔁 Restart", () => {
+      this.restartBtn = this._makeModalRoundedButton(W / 2 - 90, H / 2 + 20, "🔁 Restart", () => {
         this.destroyGameOverModal();
         this.scene.start("GameScene");
-      });
+      }, boxW);
 
-      this.exitBtn = this._makeModalRoundedButton(W / 2 + 120, H / 2 + 30, "🚪 Exit", () => {
+      this.exitBtn = this._makeModalRoundedButton(W / 2 + 105, H / 2 + 20, "🚪 Exit", () => {
         this.destroyGameOverModal();
         this.scene.start("MenuScene");
-      });
+      }, boxW);
 
-      this.submitBtn = this._makeModalRoundedButton(W / 2, H / 2 + 90, "🏁 Submit Score", () => {
+      this.submitBtn = this._makeModalRoundedButton(W / 2, H / 2 + 100, "🏁 Submit Score", () => {
         this.showPromptModal("Enter name for leaderboard (max 20 chars):", "Player", 20, (name) => {
           if (!name) return;
 
@@ -1289,7 +1293,7 @@
               this.showAlertModal("⚠️ Network error. Please try again.");
             });
         });
-      });
+      }, boxW);
       this.timerBar.clear();
     }
 
@@ -1407,14 +1411,13 @@
         .setOrigin(0.5)
         .setResolution(window.devicePixelRatio);
 
-      // const boxW = Math.min(W * 0.86, 700);
-      const startY = 110;
-      const rowH = Math.max(20, Math.floor(Math.min(W, H) / 24));
+      const startY = 130;
+      const rowH = Math.max(20, Math.floor(Math.min(W, H) / 30));
 
       const loading = this.add
         .text(W / 2, H / 2, "Loading...", {
           fontFamily: '"Luckiest Guy", "cursive"',
-          fontSize: 18,
+          fontSize: 30,
           color: "#ffffff",
         })
         .setOrigin(0.5)
@@ -1485,9 +1488,9 @@
 
       // Rounded "Back" Button
       const btnText = "Back";
-      const fontSize = 18;
+      const fontSize = 24;
       const padding = { x: 18, y: 10 };
-      const btnY = H - 56;
+      const btnY = H - 66;
 
       const tempText = this.add
         .text(0, 0, btnText, {
@@ -1584,8 +1587,8 @@
         color: "#00ffc3",
       });
 
-      const spacing = 80;
-      let startY = 130;
+      const spacing = 100;
+      let startY = 180;
 
       // Difficulty
       const diffBtn = this._makeVectorButton(
@@ -1622,7 +1625,7 @@
             if (SETTINGS.music) {
               const result = menu.bg.play();
               if (result && typeof result.catch === "function") {
-                result.catch(() => {});
+                result.catch(() => { });
               }
             } else {
               menu.bg.pause();
@@ -1671,7 +1674,7 @@
       const hoverColor = options.hoverColor || 0x00ffc3;
       const textColor = options.textColor || "#ffffff";
       const hoverTextColor = options.hoverTextColor || "#000000";
-      const fontSize = options.fontSize || 16;
+      const fontSize = options.fontSize || 24;
       const radius = options.radius || 8;
       const fontFamily = options.fontFamily || '"Luckiest Guy", "cursive"';
 

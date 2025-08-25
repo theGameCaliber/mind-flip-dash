@@ -6,7 +6,7 @@
   "background_color": "#000000",
   "theme_color": "#00ffc3",
   "icons": [
-    { "src": "/assets/logo/favicon.ico", "sizes": "192x192", "type": "image/x-icon" },
-    { "src": "/assets/logo/apple-touch-icon.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/assets/logo/mind_flip_dash_192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/logo/mind_flip_dash_512x512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
