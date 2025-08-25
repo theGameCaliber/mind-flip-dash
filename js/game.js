@@ -255,23 +255,23 @@
 
     preload() {
       // load logo
-      this.load.image("logo", "../assets/logo/mind_flip_dash_logo.png");
+      this.load.image("logo", "assets/logo/mind_flip_dash_logo.png");
 
       // arrows for touch buttons (PNGs)
-      this.load.image("arrow_up", "/assets/arrows/up.svg");
-      this.load.image("arrow_down", "/assets/arrows/down.svg");
-      this.load.image("arrow_left", "/assets/arrows/left.svg");
-      this.load.image("arrow_right", "/assets/arrows/right.svg");
-      this.load.image("arrow_ne", "/assets/arrows/ne.svg");
-      this.load.image("arrow_nw", "/assets/arrows/nw.svg");
-      this.load.image("arrow_se", "/assets/arrows/se.svg");
-      this.load.image("arrow_sw", "/assets/arrows/sw.svg");
+      this.load.image("arrow_up", "assets/arrows/up.svg");
+      this.load.image("arrow_down", "assets/arrows/down.svg");
+      this.load.image("arrow_left", "assets/arrows/left.svg");
+      this.load.image("arrow_right", "assets/arrows/right.svg");
+      this.load.image("arrow_ne", "assets/arrows/ne.svg");
+      this.load.image("arrow_nw", "assets/arrows/nw.svg");
+      this.load.image("arrow_se", "assets/arrows/se.svg");
+      this.load.image("arrow_sw", "assets/arrows/sw.svg");
 
       // sounds
-      this.load.audio("bgMusic", "/assets/sounds/background.mp3");
-      this.load.audio("successSfx", "/assets/sounds/success.mp3");
-      this.load.audio("failSfx", "/assets/sounds/fail.mp3");
-      this.load.audio("doorSfx", "/assets/sounds/opening_door.mp3");
+      this.load.audio("bgMusic", "assets/sounds/background.mp3");
+      this.load.audio("successSfx", "assets/sounds/success.mp3");
+      this.load.audio("failSfx", "assets/sounds/fail.mp3");
+      this.load.audio("doorSfx", "assets/sounds/opening_door.mp3");
 
       // load google fonts
       this.fontsReady = false;
