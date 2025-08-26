@@ -4,6 +4,7 @@ const ASSETS = [
   'game.js',
   './manifest.json',
   './assets/logo/favicon.ico',
+  './assets/logo/apple-touch-icon.png',
   './assets/logo/mind_flip_dash_192x192.png',
   './assets/logo/mind_flip_dash_512x512.png',
   './assets/logo/mind_flip_dash_logo.png',

@@ -321,7 +321,7 @@
       }
 
       // title
-      const titleSize = Math.floor(Math.min(W, H) / 14);
+      const titleSize = Math.floor(Math.min(W, H) / 12);
       this.add
         .text(W / 2, H * 0.18, "🚀 Mind Flip Dash", {
           fontFamily: '"Luckiest Guy", "cursive"',
@@ -332,11 +332,11 @@
         .setResolution(window.devicePixelRatio);
 
       // subtitle
-      const subSize = Math.floor(Math.min(W, H) / 36);
+      const subSize = Math.floor(Math.min(W, H) / 28);
       this.add
         .text(
           W / 2,
-          H * 0.28,
+          H * 0.30,
           "Test your reflexes by quickly matching opposite arrow directions.\n Stay sharp and aim for the high score!",
           {
             fontFamily: '"Luckiest Guy", "cursive"',
@@ -350,7 +350,7 @@
         .setResolution(window.devicePixelRatio);
 
       // Buttons (center)
-      const yBase = H * 0.42;
+      const yBase = H * 0.44;
       const gap = Math.min(80, Math.max(48, H * 0.1));
       this._makeRoundedButton(W / 2, yBase, "🎮 Start", () => {
         // ensure music is allowed (user gesture)
@@ -1495,14 +1495,14 @@
       this.add
         .text(W / 2, 48, "🏆 Leaderboard", {
           fontFamily: '"Luckiest Guy", "cursive"',
-          fontSize: Math.max(20, Math.floor(Math.min(W, H) / 22)),
+          fontSize: Math.max(30, Math.floor(Math.min(W, H) / 50)),
           color: "#00ffc3",
         })
         .setOrigin(0.5)
         .setResolution(window.devicePixelRatio);
 
       const startY = 130;
-      const rowH = Math.max(20, Math.floor(Math.min(W, H) / 30));
+      const rowH = Math.max(22, Math.floor(Math.min(W, H) / 30));
 
       const loading = this.add
         .text(W / 2, H / 2, "Loading...", {
@@ -1673,7 +1673,7 @@
       // Title
       this._makeLabel(W / 2, 60, "⚙️ Settings", {
         fontFamily: '"Luckiest Guy", "cursive"',
-        fontSize: Math.max(18, Math.floor(Math.min(W, H) / 22)),
+        fontSize: Math.max(30, Math.floor(Math.min(W, H) / 50)),
         color: "#00ffc3",
       });
 
