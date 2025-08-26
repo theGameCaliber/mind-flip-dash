@@ -1529,7 +1529,7 @@
             }
           }
 
-          normalized.slice(0, 10).forEach((row, i) => {
+          normalized.slice(0, 15).forEach((row, i) => {
             const y = startY + i * (rowH + 8);
 
             this.add
