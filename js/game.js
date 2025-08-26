@@ -1225,6 +1225,9 @@
       this.timeLimit = saved.timeLimit || this.baseTime;
       this.gameOver = false;
 
+      this.scoreText.setText(`🎯 Score: ${this.score}`);
+      this.highText.setText(`💯 High Score: ${this.high}`);
+
       const arrowTextureMap = {
         ArrowUp: "arrow_up",
         ArrowDown: "arrow_down",
