@@ -26,9 +26,6 @@
     sfx: (localStorage.getItem(LS.sfx) || "true") === "true",
   };
 
-  // Utility - clamp
-  // const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-
   // Game config (fixed canvas)
   const GAME_WIDTH = 800;
   const GAME_HEIGHT = 600;
@@ -38,7 +35,8 @@
   const MIN_TIME = 700; // optional, ensures it never gets too fast
   const DECREASE_PER_5 = 100; // educe 100 ms every 5 points
 
-  // Alert Modal Scene
+
+  // Alert Modal Base Scene
   class BaseScene extends Phaser.Scene {
     constructor(config) {
       super(config);
@@ -147,7 +145,7 @@
       // Prompt message
       const msgText = this.add.text(centerX, centerY - 80, message, {
         fontFamily: '"Luckiest Guy", cursive',
-        fontSize: "24px",
+        fontSize: "22px",
         color: "#ffffff",
         align: "center",
         wordWrap: { width: boxW - 40 }
@@ -182,7 +180,7 @@
         // Create text object
         const text = this.add.text(0, 0, label, {
           fontFamily: '"Luckiest Guy", cursive',
-          fontSize: "24px",
+          fontSize: "22px",
           color: "#ffffff",
           align: "center",
         }).setOrigin(0.5).setDepth(904);
@@ -246,17 +244,27 @@
 
   }
 
-  // Scenes
+
+  // Boot Scene: load all assets
   class BootScene extends BaseScene {
     constructor() {
       super("BootScene");
     }
 
     preload() {
+      // Show a temporary loading bar immediately
+      this.showBasicProgressBar();
+
       // load logo
       this.load.image("logo", "assets/logo/mind_flip_dash_logo.png");
 
-      // arrows for touch buttons (PNGs)
+      // After logo is loaded, THEN show full loading screen (logo + bar + text)
+      this.load.once('filecomplete-image-logo', () => {
+        console.log("Logo image loaded");
+        this.showFullLoadingScreen();
+      });
+
+      // load arrows
       this.load.image("arrow_up", "assets/arrows/up.svg");
       this.load.image("arrow_down", "assets/arrows/down.svg");
       this.load.image("arrow_left", "assets/arrows/left.svg");
@@ -266,7 +274,7 @@
       this.load.image("arrow_se", "assets/arrows/se.svg");
       this.load.image("arrow_sw", "assets/arrows/sw.svg");
 
-      // sounds
+      // load sounds
       this.load.audio("bgMusic", "assets/sounds/background.mp3");
       this.load.audio("successSfx", "assets/sounds/success.mp3");
       this.load.audio("failSfx", "assets/sounds/fail.mp3");
@@ -283,21 +291,51 @@
         },
       });
 
-    }
+      // Update progress bar during loading
+      this.load.on('progress', this.updateProgress, this);
 
-    update() {
-      if (this.fontsReady) {
+      // On complete, move to menu screen
+      this.load.once('complete', () => {
+        localStorage.removeItem("mfd_continue_used");
         this.scene.start("MenuScene");
-      }
+      });
+
     }
 
-    create() {
-      // ✅ Clear continue flag on fresh game load
-      localStorage.removeItem("mfd_continue_used");
-      this.scene.start("MenuScene");
+    showBasicProgressBar() {
+      // Draw a temp progress bar immediately (no logo yet)
+      this.progressBar = this.add.graphics();
+      this.progressBar.fillStyle(0x00ff00, 1);
+      this.progressBar.fillRect(this.cameras.main.centerX - 150, this.cameras.main.centerY + 20, 300, 30);
+
+      // Basic text
+      this.progressText = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 70, '0%', {
+        fontFamily: '"Luckiest Guy", "cursive"',
+        fontSize: '24px',
+        color: '#00ffc3'
+      }).setOrigin(0.5);
     }
+
+    showFullLoadingScreen() {
+      // Display the logo above the progress bar
+      this.logo = this.add.image(this.cameras.main.centerX, this.cameras.main.centerY - 70, 'logo');
+      this.logo.setScale(0.17);
+      this.logo.setOrigin(0.5);
+    }
+
+    updateProgress(value) {
+      // Update the progress bar width based on the loading progress
+      this.progressBar.clear();
+      this.progressBar.fillStyle(0x00ffc3, 1);
+      this.progressBar.fillRect(this.cameras.main.centerX - 150, this.cameras.main.centerY + 20, 300 * value, 30);
+
+      this.progressText.setText(Math.round(value * 100) + '%');
+    }
+
   }
 
+
+  // MenuScene: show menu of game
   class MenuScene extends BaseScene {
     constructor() {
       super("MenuScene");
@@ -350,7 +388,7 @@
         .setResolution(window.devicePixelRatio);
 
       // Buttons (center)
-      const yBase = H * 0.44;
+      const yBase = H * 0.47;
       const gap = Math.min(80, Math.max(48, H * 0.1));
       this._makeRoundedButton(W / 2, yBase, "🎮 Start", () => {
         // ensure music is allowed (user gesture)
@@ -384,7 +422,7 @@
       // bottom-left footer links: privacy-policy, tersm-of-service and blog
       const linkStyle = {
         fontFamily: '"Luckiest Guy", "cursive"',
-        fontSize: Math.max(12, Math.floor(Math.min(W, H) / 52)),
+        fontSize: Math.max(12, Math.floor(Math.min(W, H) / 40)),
         color: "#ffffff",
       };
 
@@ -438,7 +476,7 @@
       const W = this.scale.width;
       const H = this.scale.height;
 
-      const fontSize = Math.max(16, Math.floor(Math.min(W, H) / 28));
+      const fontSize = Math.max(16, Math.floor(Math.min(W, H) / 30));
       const paddingX = 28;
       const paddingY = 12;
       const radius = 12;
@@ -490,8 +528,8 @@
     _openHowTo() {
       const W = this.scale.width,
         H = this.scale.height;
-      const boxW = Math.min(W * 0.9, 740);
-      const boxH = Math.min(H * 0.6, 460);
+      const boxW = Math.min(W * 0.9, 800);
+      const boxH = Math.min(H * 0.6, 600);
 
       const centerX = Math.round(W / 2);
       const centerY = Math.round(H / 2);
@@ -522,26 +560,29 @@
 
       const content = [
         "> Match the arrow by pressing the opposite key/button within the time limit.",
+        "",
         "> Score increases for each correct match, and time decreases as score increases.",
+        "",
         "> Try to beat your own score and be on the leaderboard!",
         "> Different type of difficulties you will get to engage",
+        "",
         "Easy: Simple (⬆️ ⬅️ ⬇️ ➡️)",
         "Medium: Diagonal (↖️ ↗️ ↙️ ↘️)",
         "Hard: Both Mixed randomly",
       ];
 
       const textGroup = this.add.group();
-      const lineSpacing = 50;
+      const lineSpacing = 25;
 
       const textStyle = {
         fontFamily: '"Luckiest Guy", "cursive"',
-        fontSize: `${Math.max(14, Math.floor(Math.min(W, H) / 40))}px`,
+        fontSize: `${Math.max(14, Math.floor(Math.min(W, H) / 30))}px`,
         color: "#ffffff",
         align: "center",
         wordWrap: { width: boxW - 40 },
       };
 
-      const startY = centerY - boxH / 2 + 60;
+      const startY = centerY - boxH / 2 + 50;
 
       content.forEach((line, i) => {
         const lineText = this.add
@@ -627,12 +668,12 @@
         startY = H - 130;
       const labelStyle = {
         fontFamily: '"Luckiest Guy", "cursive"',
-        fontSize: Math.max(12, Math.floor(Math.min(W, H) / 48)),
+        fontSize: Math.max(12, Math.floor(Math.min(W, H) / 40)),
         color: "#fff",
       };
       const valueStyle = {
         fontFamily: '"Luckiest Guy", "cursive"',
-        fontSize: Math.max(12, Math.floor(Math.min(W, H) / 48)),
+        fontSize: Math.max(12, Math.floor(Math.min(W, H) / 40)),
         color: "#00ffc3",
       };
 
@@ -776,6 +817,7 @@
     }
   }
 
+
   // DoorScene: show door animation and play door sound, then start GameScene
   class DoorScene extends BaseScene {
     constructor() {
@@ -841,6 +883,7 @@
     }
   }
 
+
   // GameScene: core gameplay
   class GameScene extends BaseScene {
     constructor() {
@@ -903,7 +946,7 @@
       this.highText = this.add
         .text(W / 2, 74, `💯 High Score: ${this.high}`, {
           fontFamily: '"Luckiest Guy", "cursive"',
-          fontSize: Math.max(14, Math.floor(Math.min(W, H) / 40)),
+          fontSize: Math.max(14, Math.floor(Math.min(W, H) / 30)),
           color: "#a6ff00",
         })
         .setOrigin(0.5)
@@ -966,7 +1009,7 @@
       const W = this.scale.width;
       const H = this.scale.height;
 
-      const baseFontSize = 20;
+      const baseFontSize = 24;
       const scaleFactor = Math.min(W, H) / 800;
       const fontSize = Math.max(14, Math.floor(baseFontSize * scaleFactor));
 
@@ -1200,19 +1243,6 @@
       this.inputBlocker?.destroy();
     }
 
-    showRewardedAd(callback) {
-      // Simulate ad duration with timeout
-      this.showAlertModal("🎬 Watch an ad to continue...", {
-        onClose: () => {
-          this.time.delayedCall(2000, () => {
-            this.showAlertModal("✅ Thanks for watching!", {
-              onClose: callback
-            });
-          });
-        }
-      });
-    }
-
     resumeGameFromLastState(saved) {
       const W = this.scale.width;
       const H = this.scale.height;
@@ -1307,7 +1337,7 @@
       this.panel.strokeRoundedRect(W / 2 - boxW / 2, H / 2 - boxH / 2, boxW, boxH, 18);
 
       this.msg = this.add
-        .text(W / 2, H / 2 - 160, "💥 Game Over!", {
+        .text(W / 2, H / 2 - 110, "💥 Game Over!", {
           fontFamily: '"Luckiest Guy", "cursive"',
           fontSize: Math.max(20, Math.floor(Math.min(W, H) / 20)),
           color: "#fff",
@@ -1316,7 +1346,7 @@
         .setDepth(100);
 
       this.scoreData = this.add
-        .text(W / 2 + 15, H / 2 - 120, `Your Score: ${this.score}`, {
+        .text(W / 2 + 15, H / 2 - 80, `Your Score: ${this.score}`, {
           fontFamily: '"Luckiest Guy", "cursive"',
           fontSize: Math.max(16, Math.floor(Math.min(W, H) / 34)),
           color: "#ddd",
@@ -1324,8 +1354,11 @@
         .setOrigin(0.5)
         .setDepth(100);
 
-      this.continueBtn = this._makeModalRoundedButton(W / 2, H / 2 - 40, "▶️ Continue", () => {
+      this.continueBtn = this._makeModalRoundedButton(W / 2, H / 2 - 20, "▶️ Continue", () => {
         if (localStorage.getItem("mfd_continue_used")) {
+          if (typeof sdk !== 'undefined' && sdk.showBanner !== 'undefined') {
+            sdk.showBanner();
+          }
           this.showAlertModal("You've already used continue.");
           this.continueBtn.destroy();
           return;
@@ -1353,11 +1386,17 @@
       }, boxW);
 
       this.exitBtn = this._makeModalRoundedButton(W / 2 + 105, H / 2 + 40, "🚪 Exit", () => {
+        if (typeof sdk !== 'undefined' && sdk.showBanner !== 'undefined') {
+          sdk.showBanner();
+        }
         this.destroyGameOverModal();
         this.scene.start("MenuScene");
       }, boxW);
 
-      this.submitBtn = this._makeModalRoundedButton(W / 2, H / 2 + 120, "🏁 Submit Score", () => {
+      this.submitBtn = this._makeModalRoundedButton(W / 2, H / 2 + 100, "🏁 Submit Score", () => {
+        if (typeof sdk !== 'undefined' && sdk.showBanner !== 'undefined') {
+          sdk.showBanner();
+        }
         this.showPromptModal("Enter name for leaderboard (max 20 chars):", "Player Name...", 20, (name) => {
           if (!name) return;
 
@@ -1392,7 +1431,7 @@
         H = this.scale.height;
       const base = Math.max(46, Math.floor(Math.min(W, H) / 8));
       const centerX = W / 2,
-        bottomY = H - base - 40;
+        bottomY = H - base - 10;
       const gap = base + 30;
 
       const useImg = this.textures.exists("arrow_up");
@@ -1467,7 +1506,32 @@
       createBtn(centerX, bottomY - gap, "arrow_up", "ArrowUp");
       createBtn(centerX + gap, bottomY, "arrow_right", "ArrowRight");
     }
+
+    pauseAndMuteGame() {
+      // Pause the game and mute the audio
+      console.log("Pausing game and muting audio...");
+      this.scene.pause();  // Pause current scene
+
+      // Mute background music or sound effects if needed
+      const bg = this.sound.get("bgMusic");
+      if (bg && bg.isPlaying) {
+        bg.stop();
+      }
+    }
+
+    resumeAndUnmuteGame() {
+      // Resume the game and unmute the audio
+      console.log("Resuming game and unmuting audio...");
+      this.scene.resume();  // Resume current scene
+
+      // Unmute the background music or sound effects
+      const bg = this.sound.get("bgMusic");
+      if (bg && !bg.isPlaying) {
+        bg.play();
+      }
+    }
   }
+
 
   // LeaderboardScene: fetch and display
   class LeaderboardScene extends BaseScene {
@@ -1529,7 +1593,7 @@
             }
           }
 
-          normalized.slice(0, 15).forEach((row, i) => {
+          normalized.slice(0, 10).forEach((row, i) => {
             const y = startY + i * (rowH + 8);
 
             this.add
@@ -1648,7 +1712,8 @@
     }
   }
 
-  // SettingsScene
+
+  // SettingsScene: adjust difficulties, music and sfx
   class SettingsScene extends BaseScene {
     constructor() {
       super("SettingsScene");
@@ -1677,8 +1742,8 @@
         color: "#00ffc3",
       });
 
-      const spacing = 100;
-      let startY = 180;
+      const spacing = 90;
+      let startY = 150;
 
       // Difficulty
       const diffBtn = this._makeVectorButton(
@@ -1819,14 +1884,15 @@
     }
   }
 
+
   // instantiate game
   const game = new Phaser.Game({
     type: Phaser.AUTO,
     dom: {
       createContainer: true
     },
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
     backgroundColor: 0x0b0b0b,
     physics: {
       default: 'arcade'
